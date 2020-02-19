@@ -232,6 +232,15 @@ date - sort by file date;""",
             help="Should mouse motion stop the slideshow, like a screensaver?",
         )
 
+        parser.add_option(
+            "--aspect-ratio-target",
+            action="store",
+            dest="ar_target",
+            default=self.options.get("ar_target", "max"),
+            help="Try to fit/shrink pictures to screen ('min') or fill screen ('max')" 
+            "Default is 'max'.",
+        )
+
         cmd_options, args = parser.parse_args(sys.argv)
         self.options.update(vars(cmd_options))
         if "defaults" in self.options:
@@ -508,10 +517,16 @@ date - sort by file date;""",
             self.next_timeout = GObject.timeout_add(100, self.go_next, priority=GLib.PRIORITY_HIGH)
 
     def get_ratio_to_screen(self, texture):
-        return max(
-            self.stage.get_width() / texture.get_width(),
-            self.stage.get_height() / texture.get_height(),
-        )
+        if (self.options.ar_target == 'max'):
+            return max(
+                self.stage.get_width() / texture.get_width(),
+                self.stage.get_height() / texture.get_height(),
+            )
+        else:
+            return min(
+                self.stage.get_width() / texture.get_width(),
+                self.stage.get_height() / texture.get_height(),
+            )
 
     def prepare_next_data(self):
         filename = self.get_next_file()
